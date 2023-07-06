@@ -14,32 +14,33 @@ const handleListen = () => console.log(`Listening on http://localhost:3000`)
 
 const server = http.createServer(app);
 const io = SocketIO(server); 
-
 function publicRooms(){
     const {
         sockets:{
             adapter: {sids, rooms},
         },
     } = io;
-    const publicRooms = [];
+    const publicRooms = {};
     rooms.forEach((_, key) => {
         if(sids.get(key) === undefined){
-            publicRooms.push(key);
+            publicRooms[key] = countRoom(key);
         }
     });
+    console.log(publicRooms);
     return publicRooms;
 }
 function countRoom(roomName) {
     return io.sockets.adapter.rooms.get(roomName)?.size;
 }
 io.on("connection", (socket) => {
-    socket["nickname"] = "Unknown"
+    socket["nickname"] = "Unknown";
+    io.sockets.emit("room_change", publicRooms());
     socket.onAny((event) => {
         console.log(`Socket Event : ${event}`);
     });
     socket.on("enter_room", (roomName, done) => {
         socket.join(roomName);
-        done();
+        done(countRoom(roomName));
         socket.to(roomName).emit("welcome", socket.nickname, countRoom(roomName));
         io.sockets.emit("room_change", publicRooms());
     });

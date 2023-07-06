@@ -32,11 +32,11 @@ function handleNicknameSubmit(event){
     input.value = "";
 
 }
-function showRoom(){
+function showRoom(newCount){
     welcome.hidden = true;
     room.hidden = false;
     const h3 = room.querySelector("h3");
-    h3.innerText = `Room ${roomName}`;
+    h3.innerText = `Room ${roomName} (${newCount})`;
     const nicknameForm = room.querySelector("#name");
     const msgForm = room.querySelector("#msg");
     nicknameForm.addEventListener("submit", handleNicknameSubmit);
@@ -64,3 +64,44 @@ socket.on("bye", (left, newCount) => {
     addMessage(`${left} left ㅠㅠ`);
 });
 socket.on("new_message", addMessage);
+
+socket.on("room_change", (rooms) => {
+    const roomList = welcome.querySelector("ul");
+    roomList.innerHTML = "";
+    console.log('room_change');
+    if (rooms.length === 0) {
+        console.log('room 0');
+        return;
+    }
+    // rooms.forEach((room) => {
+    //     const li = document.createElement("li");
+    //     li.innerText = room;
+    //     roomList.append(li);
+    // });
+    for (let key in rooms) {
+        console.log('key test');
+        console.log(key);
+        console.log('key test2');
+        const li = document.createElement("li");
+        li.innerText = key + '(' + rooms[key] + ')';
+        roomList.append(li);
+    }
+});
+// socket.on("room_list_init", (roomArray) => {
+//     const roomList = welcome.querySelector("ul");
+//     roomList.innerHTML = "";
+//     console.log('key test-1');
+//     console.log(roomArray);
+//     if (roomArray.length === 0) {
+//         return;
+//     }
+//     console.log('key test0');
+//     for (let key in roomArray) {
+//         console.log('key test');
+//         console.log(key);
+//         console.log('key test2');
+//         const li = document.createElement("li");
+//         li.innerText = key + '(' + roomArray[key] + ')';
+//         roomList.append(li);
+//     }
+// });
